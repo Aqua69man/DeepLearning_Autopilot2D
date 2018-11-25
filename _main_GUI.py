@@ -170,10 +170,10 @@ class Window(QWidget):
         import os, glob
         work_dir = os.getcwd()
 
-        agent_files_names = []
+        agent_fils_names = []
         os.chdir(work_dir)
         for file in glob.glob("*.txt"):
-            agent_files_names.append(file)
+            agent_fils_names.append(file)
         
         steps = 5000
         seed = 15
@@ -181,7 +181,7 @@ class Window(QWidget):
         np.random.seed(seed)
         random.seed(seed)
 
-        agent = SimpleCarAgent.from_file(agent_files_names[0])
+        agent = SimpleCarAgent.from_file(agent_fils_names[0])
         sw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2)
         evl = sw.evaluate_agent(agent, steps, window=self)
         print(evl)
