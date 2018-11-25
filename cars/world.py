@@ -119,15 +119,16 @@ class SimpleCarWorld(World):
         :param collision: произошло ли столкновение со стеной на прошлом шаге
         :return reward: награду агента (возможно, отрицательную)
         """
-        # ===================================== For debugging ====================================
-        a = np.sin(angle(-state.position, state.heading))
-        vel = abs(state.velocity)
-        heading_reward = 1 if a < -0.1 else a if a < 0 else 0   #######
-        heading_penalty = -a if a >= 0 else 0                   #######
+        # Farid: Fixed mistake, adding minus before 'sin' to have '-np.sin'.
+        #        As angle() calculates angle counterclockwise!   
+        a = -np.sin(angle(-state.position, state.heading))
+        heading_reward = 1 if a > 0.1 else a if a > 0 else 0
+        heading_penalty = a if a <= 0 else 0
         idle_penalty = 0 if abs(state.velocity) > self.MIN_SPEED else -self.IDLENESS_PENALTY
         speeding_penalty = 0 if abs(state.velocity) < self.MAX_SPEED else -self.SPEEDING_PENALTY * abs(state.velocity)
         collision_penalty = - max(abs(state.velocity), 0.1) * int(collision) * self.COLLISION_PENALTY
-        # ----------------------------------------------------------------------------------------
+
+        # ------------------------------------- For debugging -----------------------------------
         hr = heading_reward * self.HEADING_REWARD
         hp = heading_penalty * self.WRONG_HEADING_PENALTY
         cp = collision_penalty
@@ -135,14 +136,7 @@ class SimpleCarWorld(World):
         ps = speeding_penalty
         # ----
         summ = hr + hp + cp + ip + ps
-        # ========================================================================================
-
-        # a = np.sin(angle(-state.position, state.heading))
-        # heading_reward = 1 if a > 0.1 else a if a > 0 else 0
-        # heading_penalty = a if a <=   0 else 0
-        # idle_penalty = 0 if abs(state.velocity) > self.MIN_SPEED else -self.IDLENESS_PENALTY
-        # speeding_penalty = 0 if abs(state.velocity) < self.MAX_SPEED else -self.SPEEDING_PENALTY * abs(state.velocity)
-        # collision_penalty = - max(abs(state.velocity), 0.1) * int(collision) * self.COLLISION_PENALTY
+        # ----------------------------------------------------------------------------------------
 
         return heading_reward * self.HEADING_REWARD + heading_penalty * self.WRONG_HEADING_PENALTY + collision_penalty \
                + idle_penalty + speeding_penalty
@@ -204,7 +198,7 @@ class SimpleCarWorld(World):
         if visual:
             scale = self._prepare_visualization()
         for _ in range(steps):
-            vision = self.vision_for(agent)
+            vision = self.vision_for(agent) # velosity, sin(angle), rayS_fromAgentToIntersectionPoint_moduleS
             action = agent.choose_action(vision)
             next_agent_state, collision = self.physics.move(
                 self.agent_states[agent], action
