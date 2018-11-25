@@ -167,8 +167,24 @@ class Window(QWidget):
     
     
     def b9_reaction(self):
-        print('Evaluate button was pressed')
+        import os, glob
+        work_dir = os.getcwd()
 
+        agent_files_names = []
+        os.chdir(work_dir)
+        for file in glob.glob("*.txt"):
+            agent_files_names.append(file)
+        
+        steps = 5000
+        seed = 15
+        m = generate_map(8, 5, 3, 3)
+        np.random.seed(seed)
+        random.seed(seed)
+
+        agent = SimpleCarAgent.from_file(agent_files_names[0])
+        sw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2)
+        evl = sw.evaluate_agent(agent, steps, window=self)
+        print(evl)
     
     def set_pygame_image(self, surface):
         w = surface.get_width()

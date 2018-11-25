@@ -190,7 +190,7 @@ class SimpleCarWorld(World):
                 pass
 
 
-    def evaluate_agent(self, agent, steps=1000, visual=True):
+    def evaluate_agent(self, agent, steps=1000, window=None, visual=True):
         """
         Прогонка цикла мира для конкретного агента (см. пример использования в комментариях после if _name__ == "__main__")
         :param agent: SimpleCarAgent
@@ -218,6 +218,10 @@ class SimpleCarWorld(World):
                 if self._update_display() == pygame.QUIT:
                     break
                 sleep(0.05)
+
+                # send "backbuffer" surface to PyQt for UI Visualization
+                if window: 
+                    window.set_pygame_image(self.screen)
 
         return np.mean(rewards)
 
