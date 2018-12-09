@@ -27,6 +27,51 @@ def sigmoid_prime(z):
     return sigmoid(z) * (1 - sigmoid(z))
 
 
+def cost_function(network, test_data, onehot=True, showLog=False, weights=None, l1=None, l2=None):
+    c = 0
+    for example, y in test_data:
+        if not onehot:
+            y = np.eye(3, 1, k=-int(y))
+        yhat = network.feedforward(example)
+        c += np.sum((y - yhat)**2)
+    c = c / (2 * len(test_data)) # не забудем поделить на 2, т.к. у нас выйдет двойка после дифференцирования
+    
+    # -------- Farid ----------
+    # ARGs: weights=None, l1=None, l2=None, were also added by Farid to test    
+    if weights is not None:
+        if showLog is True:
+            print("---------------------------------")
+            print("J1: ", c)
+        
+        wAbsSum = 0
+        for arr in weights:
+            for row in arr:
+                for cell in row:
+                    wAbsSum += abs(cell)  
+        l1_reg = l1 * wAbsSum
+        c += l1_reg
+        if showLog is True:
+            print("L1_sum: ", wAbsSum)
+            print("L1: ", l1_reg)
+        
+        w2sum = 0
+        for arr in weights:
+            for row in arr:
+                for cell in row:
+                    w2sum += abs(cell) ** 2
+        l2_reg = (l2 / 2) * w2sum
+        c += l2_reg
+        if showLog is True:        
+            print("L2_sum: ", w2sum)
+            print("L2: ", l2_reg)
+        
+        if showLog is True:
+            print("_J: ", c)
+    # -------- ~ Farid ----------
+    
+    return c
+    
+
 class Network(object):
     def __init__(self, sizes, output_function=sigmoid, output_derivative=sigmoid_prime):
         """
