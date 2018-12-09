@@ -13,7 +13,8 @@ from cars.utils import CarState, to_px, rotate, intersect_ray_with_segment, draw
 
 
 black = (0, 0, 0)
-white = (255, 255, 255)
+# white = (255, 255, 255)
+white = (255,248,220)
 
 class World(metaclass=ABCMeta):
     @abstractmethod
@@ -31,12 +32,13 @@ class SimpleCarWorld(World):
     # -----------
     size = (1920, 1080) #(800, 600)
 
-    COLLISION_PENALTY = 0.1 
-    HEADING_REWARD = 0.1 
-    WRONG_HEADING_PENALTY = .1
+    COLLISION_PENALTY = .2
+    WRONG_HEADING_PENALTY = .4
+    HEADING_REWARD = .8
 
-    IDLENESS_PENALTY = .1
-    SPEEDING_PENALTY = .1
+    IDLENESS_PENALTY = .2
+    SPEEDING_PENALTY = 6.0
+
     MIN_SPEED = .1 
     MAX_SPEED = .7
 
@@ -48,7 +50,7 @@ class SimpleCarWorld(World):
     # MIN_SPEED = 0.1 * 1e0
     # MAX_SPEED = 0.7 * 1e0
 
-    def __init__(self, num_agents, car_map, Physics, agent_class, **physics_pars):
+    def __init__(self, num_agents, car_map, Physics, agent_class, window=None, **physics_pars):
         """
         Инициализирует мир
         :param num_agents: число агентов в мире
@@ -58,6 +60,7 @@ class SimpleCarWorld(World):
         :param physics_pars: дополнительные параметры, передаваемые в конструктор класса физики
         (кроме car_map, являющейся обязательным параметром конструктора)
         """
+        self.window = window
         self.physics = Physics(car_map, **physics_pars)
         self.map = car_map
 
@@ -158,7 +161,7 @@ class SimpleCarWorld(World):
             + idle_penalty + speeding_penalty
 
 
-    def run(self, steps=None, window=None):
+    def run(self, steps=None):
         """
         Основной цикл мира; по завершении сохраняет текущие веса агента в файл network_config_agent_n_layers_....txt
         :param steps: количество шагов цикла; до внешней остановки, если None
@@ -169,11 +172,11 @@ class SimpleCarWorld(World):
             self.visualize(scale)
             if self._update_display() == pygame.QUIT:
                 break            
-            sleep(self.SHOW_SLEAP_TIME)
+            sleep(self.SHOW_SLEAP_TIME) # default = 0.1
 
             # send "backbuffer" surface to PyQt for UI Visualization
-            if window: 
-                window.set_pygame_image(self.screen)
+            if self.window: 
+                self.window.set_pygame_image(self.screen)
 
         for i, agent in enumerate(self.agents):
             try:
@@ -184,7 +187,7 @@ class SimpleCarWorld(World):
                 pass
 
 
-    def evaluate_agent(self, agent, steps=1000, window=None, visual=True):
+    def evaluate_agent(self, agent, steps=1000, visual=True):
         """
         Прогонка цикла мира для конкретного агента (см. пример использования в комментариях после if _name__ == "__main__")
         :param agent: SimpleCarAgent
@@ -211,11 +214,11 @@ class SimpleCarWorld(World):
                 self.visualize(scale)
                 if self._update_display() == pygame.QUIT:
                     break
-                sleep(0.05)
+                sleep(self.SHOW_SLEAP_TIME) # default = 0.05
 
                 # send "backbuffer" surface to PyQt for UI Visualization
-                if window: 
-                    window.set_pygame_image(self.screen)
+                if self.window: 
+                    self.window.set_pygame_image(self.screen)
 
         return np.mean(rewards)
 
