@@ -3,7 +3,7 @@ import numpy as np
 import random
 
 # ---------- Qt
-from PyQt5.QtWidgets import (QLabel, QLineEdit, QSlider, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QApplication, QWidget)
+from PyQt5.QtWidgets import (QLabel, QLineEdit, QSlider, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QApplication, QWidget, QSizePolicy)
 from PyQt5.QtCore import Qt
 from PyQt5 import QtGui
 
@@ -13,160 +13,160 @@ from cars.agent import SimpleCarAgent
 from cars.physics import SimplePhysics
 from cars.track import generate_map
 
+# --------- MatplotLib
+# import matplotlib.pyplot as plt
+# from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+# from matplotlib.figure import Figure
+
+# from mpl_toolkits.mplot3d import Axes3D
+# from scipy.constants import g, pi
 
 class Window(QWidget):
     def __init__(self):
         super().__init__()
 
         self.title = 'Car Training - Newral Network'
-        # self.left = 100
-        # self.top = 100
-        # self.width = 1920
-        # self.height = 1080
+        self.left = 100;  self.top = 100;  self.width = 1920;  self.height = 1080
         self.init_ui()
-    
     def init_ui(self): 
-        self.l0_pygame_label = QLabel()
+        self.l_pygameBackbuff = QLabel()
 
-        self.l1 = QLabel('1st inner layer:')
-        self.s1 = QSlider(Qt.Horizontal)
-        self.s1.setMinimum(0)
-        self.s1.setMaximum(10)
-        self.s1.setValue(6)
-        self.s1.setTickInterval(1) # discretization frequency
-        self.s1.setTickPosition(QSlider.TicksRight) # QSlider.TicksBelow - determins the side where the stick points
+        self.l_layer1 = QLabel('1st hidden layer:')
+        self.s_layer1 = QSlider(Qt.Horizontal)
+        self.s_layer1.setMinimum(0)
+        self.s_layer1.setMaximum(20)
+        self.s_layer1.setValue(9)
+        self.s_layer1.setTickInterval(1) # discretization frequency
+        self.s_layer1.setTickPosition(QSlider.TicksRight) # QSlider.TicksBelow - determins the side where the stick points
 
-        self.l2 = QLabel('2nd innder layer:')
-        self.s2 = QSlider(Qt.Horizontal)
-        self.s2.setMinimum(0)
-        self.s2.setMaximum(10)
-        self.s2.setValue(0)
+        self.l_layer2 = QLabel('2nd hidden layer:')
+        self.s_layer2 = QSlider(Qt.Horizontal)
+        self.s_layer2.setMinimum(0)
+        self.s_layer2.setMaximum(20)
+        self.s_layer2.setValue(0)
+        self.s_layer2.setTickInterval(1)
+        self.s_layer2.setTickPosition(QSlider.TicksRight)
 
-        self.l3 = QLabel('3rd innder layer:')
-        self.s3 = QSlider(Qt.Horizontal)
-        self.s3.setMinimum(0)
-        self.s3.setMaximum(10)
-        self.s3.setValue(0)
-        self.s3.setTickInterval(1)
-        self.s3.setTickPosition(QSlider.TicksRight)
+        self.l_layer3 = QLabel('3rd hidden layer:')
+        self.s_layer3 = QSlider(Qt.Horizontal)
+        self.s_layer3.setMinimum(0)
+        self.s_layer3.setMaximum(20)
+        self.s_layer3.setValue(0)
+        self.s_layer3.setTickInterval(1)
+        self.s_layer3.setTickPosition(QSlider.TicksRight)
 
+        self.l_epoches = QLabel('Epoches:')
+        self.le_epoches = QLineEdit()
+        self.le_epoches.setText('15')
 
-        self.l4 = QLabel('Batch size:')
-        self.le4 = QLineEdit()
-        self.le4.setText('50')
+        self.l_batchSize = QLabel('Batch size:')
+        self.le_batchSize = QLineEdit()
+        self.le_batchSize.setText('16')
 
-        self.l5 = QLabel('Learning rate:')
-        self.c5 = QComboBox()
-        self.c5.addItem('0.01')
-        self.c5.addItem('0.05')
-        self.c5.addItem('0.1')
-        self.c5.addItem('0.5')
-        self.c5.addItem('1')
-        self.c5.addItem('5')
-        self.c5.addItem('10')
-        self.c5.setCurrentIndex(1)
+        self.l_learnRate = QLabel('Learning rate:')
+        self.cb_learnRate = QComboBox()
+        self.cb_learnRate.addItem('0.01')
+        self.cb_learnRate.addItem('0.05')
+        self.cb_learnRate.addItem('0.1')
+        self.cb_learnRate.addItem('0.5')
+        self.cb_learnRate.addItem('1')
+        self.cb_learnRate.addItem('5')
+        self.cb_learnRate.addItem('10')
+        self.cb_learnRate.setCurrentIndex(4)
+        # self.cb_learnRate.setCurrentIndex(1)
 
-        self.l6 = QLabel('L1:')
-        self.c6 = QComboBox()
-        self.c6.addItem('0')
-        self.c6.addItem('0.0001')
-        self.c6.addItem('0.0005')
-        self.c6.addItem('0.001')
-        self.c6.addItem('0.005')
-        self.c6.addItem('0.01')
-        self.c6.addItem('0.05')
-        self.c6.addItem('0.1')
+        self.l_regL1 = QLabel('L1:')
+        self.cb_regL1 = QComboBox()
+        self.cb_regL1.addItem('0')
+        self.cb_regL1.addItem('0.0001')
+        self.cb_regL1.addItem('0.0005')
+        self.cb_regL1.addItem('0.001')
+        self.cb_regL1.addItem('0.005')
+        self.cb_regL1.addItem('0.01')
+        self.cb_regL1.addItem('0.05')
+        self.cb_regL1.addItem('0.1')
 
-        self.l7 = QLabel('L2:')
-        self.c7 = QComboBox()
-        self.c7.addItem('0')
-        self.c7.addItem('0.0001')
-        self.c7.addItem('0.0005')
-        self.c7.addItem('0.001')
-        self.c7.addItem('0.005')
-        self.c7.addItem('0.01')
-        self.c7.addItem('0.05')
-        self.c7.addItem('0.1')
+        self.l_regL2 = QLabel('L2:')
+        self.cb_regL2 = QComboBox()
+        self.cb_regL2.addItem('0')
+        self.cb_regL2.addItem('0.0001')
+        self.cb_regL2.addItem('0.0005')
+        self.cb_regL2.addItem('0.001')
+        self.cb_regL2.addItem('0.005')
+        self.cb_regL2.addItem('0.01')
+        self.cb_regL2.addItem('0.05')
+        self.cb_regL2.addItem('0.1')
 
-        self.b8 = QPushButton('Train')
+        self.b_train = QPushButton('Train')
+        self.b_eval = QPushButton('Evaluate')
 
-        self.b9 = QPushButton('Evaluate')
+        v_box_1 = QVBoxLayout()
+        v_box_1.addWidget(self.l_pygameBackbuff)
 
-        v_box = QVBoxLayout()
-        v_box.addWidget(self.l1)
-        v_box.addWidget(self.s1)
-        v_box.addWidget(self.l2)
-        v_box.addWidget(self.s2)
-        v_box.addWidget(self.l3)
-        v_box.addWidget(self.s3)
-        v_box.addWidget(self.l4)
-        v_box.addWidget(self.le4)
-        v_box.addWidget(self.l5)
-        v_box.addWidget(self.c5)
-        v_box.addWidget(self.l6)
-        v_box.addWidget(self.c6)
-        v_box.addWidget(self.l7)
-        v_box.addWidget(self.c7)
-        v_box.addWidget(self.b8)
-        v_box.addWidget(self.b9)
+        v_box_2 = QVBoxLayout()
+        v_box_2.addWidget(self.l_layer1)
+        v_box_2.addWidget(self.s_layer1)
+        v_box_2.addWidget(self.l_layer2)
+        v_box_2.addWidget(self.s_layer2)
+        v_box_2.addWidget(self.l_layer3)
+        v_box_2.addWidget(self.s_layer3)
+        v_box_2.addWidget(self.l_epoches)
+        v_box_2.addWidget(self.le_epoches)
+        v_box_2.addWidget(self.l_batchSize)
+        v_box_2.addWidget(self.le_batchSize)
+        v_box_2.addWidget(self.l_learnRate)
+        v_box_2.addWidget(self.cb_learnRate)
+        v_box_2.addWidget(self.l_regL1)
+        v_box_2.addWidget(self.cb_regL1)
+        v_box_2.addWidget(self.l_regL2)
+        v_box_2.addWidget(self.cb_regL2)
+        v_box_2.addWidget(self.b_train)
+        v_box_2.addWidget(self.b_eval)
 
         h_box = QHBoxLayout()
-        h_box.addWidget(self.l0_pygame_label)
-        h_box.addLayout(v_box)
+        h_box.addLayout(v_box_1)
+        h_box.addLayout(v_box_2)
 
-        self.s1.valueChanged.connect(self.s1_reaction)
-        self.s2.valueChanged.connect(self.s2_reaction)
-        self.s3.valueChanged.connect(self.s3_reaction)
-        self.b8.clicked.connect(self.b8_reaction)
-        self.b9.clicked.connect(self.b9_reaction)
+        self.s_layer1.valueChanged.connect(self.s_layer1_changed)
+        self.s_layer2.valueChanged.connect(self.s_layer2_changed)
+        self.s_layer3.valueChanged.connect(self.s_layer3_changed)
+        self.b_train.clicked.connect(self.b_train_changed)
+        self.b_eval.clicked.connect(self.b_eval_changed)
 
         self.setLayout(h_box)
         self.setWindowTitle(self.title)
         self.show()
 
-    def s1_reaction(self, text):
-        new_text = '1st inner layer: ' + str(text)  
-        self.l1.setText(new_text)
-    def s2_reaction(self, text):
-        new_text = '2nd inner layer: ' + str(text)  
-        self.l2.setText(new_text)
-    def s3_reaction(self, text):
-        new_text = '3rd inner layer: ' + str(text)  
-        self.l3.setText(new_text)
 
-    def b8_reaction(self):
-        layer1 = int( self.s1.value() ) 
-        layer2 = int( self.s2.value() )
-        layer3 = int( self.s3.value() )
-        batch_size = int( self.le4.text() )
-        learning_rate = float( self.c5.currentText() )
-        l1_reg = float( self.c6.currentText() )
-        l2_reg = float( self.c7.currentText() )
+    def b_train_changed(self):
+        # parse gui prams
+        hidden_layer1 = int( self.s_layer1.value() ) 
+        hidden_layer2 = int( self.s_layer2.value() )
+        hidden_layer3 = int( self.s_layer3.value() )
+        hidden_layers = [hidden_layer1, hidden_layer2, hidden_layer3]
 
-        print( '1st inner layer: ', str(layer1) )
-        print( '2nd inner layer: ', str(layer2) )
-        print( '3rd inner layer: ', str(layer3) )
-        print( 'Batch size: ', str(batch_size) )
-        print( 'Learning rate: ', str(learning_rate) )
-        print( 'L1: ', str(l1_reg) )
-        print( 'L2: ', str(l2_reg) )
+        epoches = int( self.le_epoches.text() )
+
+        batch_size = int( self.le_batchSize.text() )
+        learning_rate = float( self.cb_learnRate.currentText() )
+        reg_L1 = float( self.cb_regL1.currentText() )
+        reg_L2 = float( self.cb_regL2.currentText() )
         
-        # -------- Init NN and PyGame
-        # learning_curve_by_network_structure(layer1=layer1, layer2=layer2, layer3=layer3, batch_size=batch_size, learning_rate=learning_rate)
-        steps = 5000
+        # init NN and PyGame
+        steps = 1600
         seed = 15
-        m = generate_map(8, 5, 3, 3)
         np.random.seed(seed)
         random.seed(seed)
+        m = generate_map(8, 5, 3, 3)
 
         # agent = SimpleCarAgent(epochs=15, mini_batch_size=50, eta=0.05)
-        agent = SimpleCarAgent(epochs=15, mini_batch_size=batch_size, eta=learning_rate)
-        scw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2)
+        agent = SimpleCarAgent(hidden_layers=hidden_layers, epochs=epoches, mini_batch_size=batch_size, eta=learning_rate)
+        scw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
         scw.set_agents([agent])
-        scw.run(steps, window=self)
-    
-    
-    def b9_reaction(self):
+        scw.run(steps)
+
+    def b_eval_changed(self):
+        # get inferance file name
         import os, glob
         work_dir = os.getcwd()
 
@@ -175,17 +175,30 @@ class Window(QWidget):
         for file in glob.glob("*.txt"):
             agent_fils_names.append(file)
         
-        steps = 5000
+        # init NN and PyGame
+        steps = 1000
         seed = 15
-        m = generate_map(8, 5, 3, 3)
         np.random.seed(seed)
         random.seed(seed)
+        m = generate_map(8, 5, 3, 3)
 
+        # run game
         agent = SimpleCarAgent.from_file(agent_fils_names[0])
-        sw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2)
-        evl = sw.evaluate_agent(agent, steps, window=self)
+        sw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
+        evl = sw.evaluate_agent(agent, steps)
         print(evl)
-    
+ 
+
+    def s_layer1_changed(self, text):
+        new_text = '1st hidden layer: ' + str(text)  
+        self.l_layer1.setText(new_text)
+    def s_layer2_changed(self, text):
+        new_text = '2nd hidden layer: ' + str(text)  
+        self.l_layer2.setText(new_text)
+    def s_layer3_changed(self, text):
+        new_text = '3rd hidden layer: ' + str(text)  
+        self.l_layer3.setText(new_text)
+
     def set_pygame_image(self, surface):
         w = surface.get_width()
         h = surface.get_height()
@@ -193,15 +206,13 @@ class Window(QWidget):
 
         self.setGeometry(100, 100, w+300, h)
         self.l0_qimage = QtGui.QImage(data, w, h, QtGui.QImage.Format_RGB32)
-        self.l0_pygame_label.setPixmap(QtGui.QPixmap.fromImage(self.l0_qimage) )
-
-
+        self.l_pygameBackbuff.setPixmap(QtGui.QPixmap.fromImage(self.l0_qimage) )
     def closeEvent(self, event): 
-        super().closeEvent()
-        pygame.quit()  
-        
+        super().closeEvent(event)
+        pygame.quit() 
 
-if __name__ == "__main__":
+
+if __name__ == "__main__": 
     app = QApplication(sys.argv)
     window = Window()   # window = Window(pygame.Surface((600,400)))
     sys.exit(app.exec_())
