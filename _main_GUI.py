@@ -153,7 +153,7 @@ class Window(QWidget):
         reg_L2 = float( self.cb_regL2.currentText() )
         
         # init NN and PyGame
-        steps = 1600
+        steps = 3000
         seed = 15
         np.random.seed(seed)
         random.seed(seed)

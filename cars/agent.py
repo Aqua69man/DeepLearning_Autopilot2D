@@ -37,15 +37,14 @@ class SimpleCarAgent(Agent):
         self.evaluate_mode = False  # этот агент учится или экзаменутеся? если учится, то False
         self._rays = 5 # выберите число лучей ладара; например, 5
         
-        if hidden_layers:
+
+        self.layers = []
+        self.layers.append(self.rays + 4) # INPUT layer: rays + (velosity + headingAngle + acceleration + steeering) 
+        if hidden_layers:                 # HIDDEN layer: chooose, how many and in which ratio you need, for example, (self.rays + 4) * 2 or just an digit
             preproc_hidden_layers = [x for x in hidden_layers if x > 0]
-            self.layers = []
-            self.layers.append(self.rays + 4) # INPUT layer
-            # внутренние слои сети: выберите, сколько и в каком соотношении вам нужно например, (self.rays + 4) * 2 или просто число
-            self.layers += preproc_hidden_layers # HIDDEN layer
-            self.layers.append(1) # OUTPUT layer
-        else:
-            self.layers = [self.rays + 4,  1]
+            self.layers += preproc_hidden_layers 
+        self.layers.append(1)             # OUTPUT layer
+
         self.epochs=epochs 
         self.train_every=mini_batch_size
         self.eta=eta
@@ -175,32 +174,12 @@ class SimpleCarAgent(Agent):
             X_train = np.concatenate([self.sensor_data_history, self.chosen_actions_history], axis=1)
             y_train = self.reward_history
             
-            # ## self.neural_net.SGD(training_data=train_data, epochs=15, mini_batch_size=train_every, eta=0.05)
-            # train_data = [(x[:, np.newaxis], y) for x, y in zip(X_train, y_train)]
-            # self.neural_net.SGD(training_data=train_data, epochs=self.epochs, mini_batch_size=self.train_every, eta=self.eta)
+            ## self.neural_net.SGD(training_data=train_data, epochs=15, mini_batch_size=train_every, eta=0.05)
+            train_data = [(x[:, np.newaxis], y) for x, y in zip(X_train, y_train)]
+            self.neural_net.SGD(training_data=train_data, epochs=self.epochs, mini_batch_size=self.train_every, eta=self.eta)
+            print('Train costfunc: ', cost_function(self.neural_net, train_data, onehot=True))
 
-            x_data = np.array(X_train)
-            x_means = x_data.mean(axis=0)
-            x_stds = x_data.std(axis=0)
-            x_data = (x_data - x_means) / x_stds
-            y_data = np.array(y_train)
 
-            data = [(x[:, np.newaxis], y) for x, y in zip(x_data, y_data)]
-
-            train = []
-            test = []
-            for i, key in enumerate(data):
-                if i < len(data)*0.75 :
-                    train.append(key)
-                else :
-                    test.append(key)
-
-            self.neural_net.SGD(training_data=data, epochs=self.epochs, mini_batch_size=self.train_every, eta=self.eta)
-            print('Train costfunc: ', cost_function(self.neural_net, train, onehot=True))
-            print('---------------')
-
-            # # ---------------------------- Const func fata (test and)
-            # # x = np.array(X_train).reshape(-1, 9).mean(axis=0).flatten()
             # x_data = np.array(X_train)
             # x_means = x_data.mean(axis=0)
             # x_stds = x_data.std(axis=0)
@@ -209,21 +188,17 @@ class SimpleCarAgent(Agent):
 
             # data = [(x[:, np.newaxis], y) for x, y in zip(x_data, y_data)]
 
-            # train = []
-            # test = []
-            # for i, key in enumerate(data):
-            #     if i < len(data)*0.75 :
-            #         train.append(key)
-            #     else :
-            #         test.append(key)
+            # # train = []
+            # # test = []
+            # # for i, key in enumerate(data):
+            # #     if i < len(data)*0.75 :
+            # #         train.append(key)
+            # #     else :
+            # #         test.append(key)
 
-            # self.neural_net.SGD(training_data=train, epochs=self.epochs, mini_batch_size=self.train_every, eta=self.eta)
-
-            # # ---------------------------- Plot graph
-            # print('----------------------------')
-            # print('Train: ', cost_function(self.neural_net, train, onehot=True))
-            # print('Test: ', cost_function(self.neural_net, test, onehot=True))
-
+            # self.neural_net.SGD(training_data=data, epochs=self.epochs, mini_batch_size=self.train_every, eta=self.eta)
+            # print('Train costfunc: ', cost_function(self.neural_net, data, onehot=True))
+            # print('---------------')
 
             # ---------------------------- Plot graph
             # self.cost_train.append(cost_function(self.neural_net, train, onehot=True))

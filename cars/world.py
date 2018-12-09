@@ -32,23 +32,23 @@ class SimpleCarWorld(World):
     # -----------
     size = (1920, 1080) #(800, 600)
 
-    COLLISION_PENALTY = .2
-    WRONG_HEADING_PENALTY = .4
-    HEADING_REWARD = .8
+    # COLLISION_PENALTY = .2
+    # WRONG_HEADING_PENALTY = .4
+    # HEADING_REWARD = .4
 
-    IDLENESS_PENALTY = .2
-    SPEEDING_PENALTY = 6.0
+    # IDLENESS_PENALTY = .2
+    # SPEEDING_PENALTY = .4
 
-    MIN_SPEED = .1 
-    MAX_SPEED = .7
+    # MIN_SPEED = .1 
+    # MAX_SPEED = .7
 
-    # COLLISION_PENALTY = 0 * 1e0
-    # HEADING_REWARD = 0 * 1e-1
-    # WRONG_HEADING_PENALTY = 0 * 1e0
-    # IDLENESS_PENALTY = 32 * 1e-1
-    # SPEEDING_PENALTY = 32 * 1e-1
-    # MIN_SPEED = 0.1 * 1e0
-    # MAX_SPEED = 0.7 * 1e0
+    COLLISION_PENALTY = 0 * 1e0
+    HEADING_REWARD = 0 * 1e-1
+    WRONG_HEADING_PENALTY = 0 * 1e0
+    IDLENESS_PENALTY = 32 * 1e-1
+    SPEEDING_PENALTY = 32 * 1e-1
+    MIN_SPEED = 0.1 * 1e0
+    MAX_SPEED = 0.7 * 1e0
 
     def __init__(self, num_agents, car_map, Physics, agent_class, window=None, **physics_pars):
         """
