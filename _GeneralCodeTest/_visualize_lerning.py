@@ -1,27 +1,7 @@
-from network import *
+import numpy as np
+
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-
-data = np.loadtxt("data.csv", delimiter=",")
-
-means = data.mean(axis=0)
-means[-1] = 0  # правильные ответы мы нормализовывать не будем: это качественные переменные
-stds = data.std(axis=0)
-stds[-1] = 1
-data = (data - means) / stds
-
-test_index = np.random.choice([True, False], len(data), replace=True, p=[0.25, 0.75])
-test  = data[test_index]
-train = data[np.logical_not(test_index)]
-
-train = [(d[:3][:, np.newaxis], np.eye(3, 1, k=-int(d[-1]))) for d in train]  
-test =  [(d[:3][:, np.newaxis], d[-1]) for d in test]
-
-input_count  = 3  # 3 нейрона входного слоя
-hidden_count = 6  # 6 нейронов внутреннего слоя 
-output_count = 3  # 3 нейрона выходного слоя, по индикатору для каждого из классов "попал", "недолёт" и "перелёт"
-
-
+from learning_algorithms.network import Network
 
 def cost_function(network, test_data, onehot=True, showLog=False, weights=None, l1=None, l2=None):
     c = 0
@@ -67,8 +47,11 @@ def cost_function(network, test_data, onehot=True, showLog=False, weights=None, 
     
     return c
 
-def learning_curve_by_network_structure(layer1, layer2, layer3, batch_size, learning_rate):
-    layers = [x for x in [input_count, layer1, layer2, layer3, output_count] if x > 0]
+def learning_curve_by_network_structure(train, test, 
+                                        layer0_input, layer1, layer2, layer3, layerN_out,
+                                        batch_size, learning_rate):
+
+    layers = [x for x in [layer0_input, layer1, layer2, layer3, layerN_out] if x > 0]
     nn = Network(layers)
     learning_rate=float(learning_rate)
     
@@ -82,7 +65,7 @@ def learning_curve_by_network_structure(layer1, layer2, layer3, batch_size, lear
         cost_train.append(cost_function(nn, train, onehot=True))
     
     for i, key in enumerate(CER):
-        print("Эпоха {0}: ошибка = {1}".format(i, key))
+        print("Epoch {0}: error = {1}".format(i, key))
 
     fig = plt.figure(figsize=(15,5))
     fig.add_subplot(1,2,1)
@@ -101,7 +84,33 @@ def learning_curve_by_network_structure(layer1, layer2, layer3, batch_size, lear
     plt.legend()
     plt.show()
 
+
+if __name__ == "__main__":
+    data = np.loadtxt("data.csv", delimiter=",")
+
+    means = data.mean(axis=0)
+    means[-1] = 0  # правильные ответы мы нормализовывать не будем: это качественные переменные
+    stds = data.std(axis=0)
+    stds[-1] = 1
+    data = (data - means) / stds
+
+    test_index = np.random.choice([True, False], len(data), replace=True, p=[0.25, 0.75])
+    test  = data[test_index]
+    train = data[np.logical_not(test_index)]
+
+    train = [(d[:3][:, np.newaxis], np.eye(3, 1, k=-int(d[-1]))) for d in train]  
+    test =  [(d[:3][:, np.newaxis], d[-1]) for d in test]
+
     
-# ------------------------------------ Main 2 ---------------------------------------------------
-# learning_curve_by_network_structure(layer1=6, layer2=0, layer3=0, batch_size=4, learning_rate=1)
-# -----------------------------------------------------------------------------------------------
+    layer0_input = 3  # 3 Newrons of input layer
+    layerN_out   = 3  # 3 Newrons of output layer, one identificator for each class 'hit the target' 'undershoot' 'fly over the target'
+    
+    layer1 = 6  # Hidden layers
+    layer2 = 0
+    layer3 = 0
+
+    # ------------------------------------ Main 2 ---------------------------------------------------
+    learning_curve_by_network_structure(train=train, test=test,
+                                        layer0_input=layer0_input, layer1=layer1, layer2=layer2, layer3=layer3, layerN_out=layerN_out, 
+                                        batch_size=4, learning_rate=1)
+    # -----------------------------------------------------------------------------------------------
