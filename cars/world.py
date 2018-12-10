@@ -32,12 +32,12 @@ class SimpleCarWorld(World):
     # -----------
     size = (1920, 1080) #(800, 600)
 
-    # COLLISION_PENALTY = .2
-    # WRONG_HEADING_PENALTY = .4
-    # HEADING_REWARD = .4
+    # COLLISION_PENALTY = .3
+    # WRONG_HEADING_PENALTY = .6
+    # HEADING_REWARD = 1.5
 
     # IDLENESS_PENALTY = .2
-    # SPEEDING_PENALTY = .4
+    # SPEEDING_PENALTY = .8
 
     # MIN_SPEED = .1 
     # MAX_SPEED = .7

@@ -26,7 +26,7 @@ class Agent(metaclass=ABCMeta):
 
 
 class SimpleCarAgent(Agent):
-    def __init__(self, hidden_layers=None, epochs=15, mini_batch_size=50, eta=0.05, history_data=int(50000)):
+    def __init__(self, hidden_layers=None, epochs=15, mini_batch_size=50, eta=0.05, l1=0, l2=0, history_data=int(50000)):
         """
         Создаёт машинку
         :param history_data: количество хранимых нами данных о результатах предыдущих шагов
@@ -48,9 +48,11 @@ class SimpleCarAgent(Agent):
         self.epochs=epochs 
         self.train_every=mini_batch_size
         self.eta=eta
+        self.l1 = l1
+        self.l2 = l2
 
         # here +2 is for 2 inputs from elements of Action that we are trying to predict. 
-        self.neural_net = Network(self.layers,
+        self.neural_net = Network(sizes=self.layers, output_log=True,
                                   output_function=lambda x: x, output_derivative=lambda x: 1)
         self.sensor_data_history = deque([], maxlen=history_data)
         self.chosen_actions_history = deque([], maxlen=history_data)
@@ -65,7 +67,8 @@ class SimpleCarAgent(Agent):
         """
         agent = SimpleCarAgent()
         agent._rays = weights[0].shape[1] - 4
-        nn = Network(layers, output_function=lambda x: x, output_derivative=lambda x: 1)
+        nn = Network(sizes=layers, output_log=True,
+                     output_function=lambda x: x, output_derivative=lambda x: 1)
 
         if len(weights) != len(nn.weights):
             raise AssertionError("You provided %d weight matrices instead of %d" % (len(weights), len(nn.weights)))
