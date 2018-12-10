@@ -1,6 +1,8 @@
 import sys
 import numpy as np
 import random
+import os, glob
+
 
 # ---------- Qt
 from PyQt5.QtWidgets import (QLabel, QLineEdit, QSlider, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QApplication, QWidget, QSizePolicy)
@@ -35,7 +37,7 @@ class Window(QWidget):
         self.s_layer1 = QSlider(Qt.Horizontal)
         self.s_layer1.setMinimum(0)
         self.s_layer1.setMaximum(20)
-        self.s_layer1.setValue(9)
+        self.s_layer1.setValue(18)
         self.s_layer1.setTickInterval(1) # discretization frequency
         self.s_layer1.setTickPosition(QSlider.TicksRight) # QSlider.TicksBelow - determins the side where the stick points
 
@@ -61,7 +63,7 @@ class Window(QWidget):
 
         self.l_batchSize = QLabel('Batch size:')
         self.le_batchSize = QLineEdit()
-        self.le_batchSize.setText('16')
+        self.le_batchSize.setText('5')
 
         self.l_learnRate = QLabel('Learning rate:')
         self.cb_learnRate = QComboBox()
@@ -72,7 +74,7 @@ class Window(QWidget):
         self.cb_learnRate.addItem('1')
         self.cb_learnRate.addItem('5')
         self.cb_learnRate.addItem('10')
-        self.cb_learnRate.setCurrentIndex(4)
+        self.cb_learnRate.setCurrentIndex(1)
         # self.cb_learnRate.setCurrentIndex(1)
 
         self.l_regL1 = QLabel('L1:')
@@ -137,6 +139,108 @@ class Window(QWidget):
         self.setWindowTitle(self.title)
         self.show()
 
+    def b_train_MULTIPLE_changed(self):
+        # parse gui prams
+        hidden_layer1 = int( self.s_layer1.value() ) 
+        hidden_layer2 = int( self.s_layer2.value() )
+        hidden_layer3 = int( self.s_layer3.value() )
+        hidden_layers = [hidden_layer1, hidden_layer2, hidden_layer3]
+
+        epoches = int( self.le_epoches.text() )
+
+        batch_size = int( self.le_batchSize.text() )
+        learning_rate = float( self.cb_learnRate.currentText() )
+        reg_L1 = float( self.cb_regL1.currentText() )
+        reg_L2 = float( self.cb_regL2.currentText() )
+    
+
+        # remove useless files
+        work_dir = os.getcwd()
+        os.chdir(work_dir)
+        agent_fils_names = []
+        for file in glob.glob("*.txt"):
+            os.remove(file)
+
+        # global steps count
+        steps = 10000
+
+        # init NN and PyGame
+        seed = 15
+        np.random.seed(seed)
+        random.seed(seed)
+        m = generate_map(8, 5, 3, 3)
+
+        # train nn
+        agent = SimpleCarAgent(hidden_layers=hidden_layers, epochs=epoches, mini_batch_size=batch_size, eta=learning_rate)
+        scw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
+        scw.set_agents([agent])
+        scw.run(1)
+
+        cycles = int(steps / 1000)
+        for _ in range(cycles):
+            # get inferance file name
+            work_dir = os.getcwd()
+            agent_fils_names = []
+            os.chdir(work_dir)
+            for file in glob.glob("*.txt"):
+                agent_fils_names.append(file)
+
+            agent_file_name = agent_fils_names[0]
+            # run game
+            agent = SimpleCarAgent.from_file(agent_file_name)
+            os.remove(agent_file_name)
+            sw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
+            sw.set_agents([agent])
+            sw.run(1000)
+
+        # init NN and PyGame
+        seed = 21
+        np.random.seed(seed)
+        random.seed(seed)
+        m = generate_map(8, 5, 3, 3)
+
+        cycles = int(steps / 2000)
+        for _ in range(cycles):
+            # get inferance file name
+            work_dir = os.getcwd()
+            agent_fils_names = []
+            os.chdir(work_dir)
+            for file in glob.glob("*.txt"):
+                agent_fils_names.append(file)
+
+            agent_file_name = agent_fils_names[0]
+            # run game
+            agent = SimpleCarAgent.from_file(agent_file_name)
+            os.remove(agent_file_name)
+            sw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
+            sw.set_agents([agent])
+            sw.run(1000)
+
+                # init NN and PyGame
+        
+        seed = 42
+        np.random.seed(seed)
+        random.seed(seed)
+        m = generate_map(8, 5, 3, 3)
+
+        cycles = int(steps / 5000)
+        for _ in range(cycles):
+            # get inferance file name
+            work_dir = os.getcwd()
+            agent_fils_names = []
+            os.chdir(work_dir)
+            for file in glob.glob("*.txt"):
+                agent_fils_names.append(file)
+
+            agent_file_name = agent_fils_names[0]
+            # run game
+            agent = SimpleCarAgent.from_file(agent_file_name)
+            os.remove(agent_file_name)
+            sw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
+            sw.set_agents([agent])
+            sw.run(1000)
+
+
 
     def b_train_changed(self):
         # parse gui prams
@@ -153,17 +257,43 @@ class Window(QWidget):
         reg_L2 = float( self.cb_regL2.currentText() )
         
         # init NN and PyGame
-        steps = 3000
+        steps = 20000
         seed = 15
         np.random.seed(seed)
         random.seed(seed)
         m = generate_map(8, 5, 3, 3)
 
-        # agent = SimpleCarAgent(epochs=15, mini_batch_size=50, eta=0.05)
-        agent = SimpleCarAgent(hidden_layers=hidden_layers, epochs=epoches, mini_batch_size=batch_size, eta=learning_rate)
+        # remove useless files
+        work_dir = os.getcwd()
+        os.chdir(work_dir)
+        agent_fils_names = []
+        for file in glob.glob("*.txt"):
+            os.remove(file)
+
+        # train nn
+        agent = SimpleCarAgent(hidden_layers=hidden_layers, epochs=epoches, mini_batch_size=batch_size, eta=learning_rate, l1=reg_L1, l2=reg_L2)
         scw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
         scw.set_agents([agent])
-        scw.run(steps)
+        scw.run(1)
+
+        cycles = int(steps / 1000)
+        for _ in range(cycles):
+            # get inferance file name
+            work_dir = os.getcwd()
+            agent_fils_names = []
+            os.chdir(work_dir)
+            for file in glob.glob("*.txt"):
+                agent_fils_names.append(file)
+
+            agent_file_name = agent_fils_names[0]
+            # run game
+            agent = SimpleCarAgent.from_file(agent_file_name)
+            os.remove(agent_file_name)
+            sw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
+            sw.set_agents([agent])
+            sw.run(1000)
+
+
 
     def b_eval_changed(self):
         # get inferance file name
