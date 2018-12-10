@@ -73,7 +73,7 @@ def cost_function(network, test_data, onehot=True, showLog=False, weights=None, 
     
 
 class Network(object):
-    def __init__(self, sizes, output_function=sigmoid, output_derivative=sigmoid_prime):
+    def __init__(self, sizes, output_log=True, output_function=sigmoid, output_derivative=sigmoid_prime):
         """
         Список ``sizes`` содержит количество нейронов в соответствующих слоях
         нейронной сети. К примеру, если бы этот лист выглядел как [2, 3, 1],
@@ -94,6 +94,8 @@ class Network(object):
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
         self.weights = [np.random.randn(y, x)
                         for x, y in zip(sizes[:-1], sizes[1:])]
+        self.output_log = output_log
+        
         assert output_function is not None, "You should either provide output function or leave it default!"
         self.output_function = output_function
         assert output_derivative is not None, "You should either provide derivative of the output function or leave it default!"
@@ -140,11 +142,11 @@ class Network(object):
                 for k in range(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, eta)
-            if test_data is not None:
+            if test_data is not None and self.output_log:
                 success_tests = self.evaluate(test_data)
                 print("Epoch {0}: {1} / {2}".format(
                     j, success_tests, n_test))
-            else:
+            elif self.output_log:
                 print("Epoch {0} finished".format(j))
         if test_data is not None:
             return success_tests / n_test
