@@ -167,7 +167,7 @@ class SimpleCarAgent(Agent):
 
         return best_action
 
-    def receive_feedback(self, reward, reward_depth=20):
+    def receive_feedback(self, reward, reward_depth=50):
         """
         Получить реакцию на последнее решение, принятое сетью, и проанализировать его
         :param reward: оценка внешним миром наших действий
@@ -198,7 +198,7 @@ class SimpleCarAgent(Agent):
             # self.neural_net.SGD(training_data=train_data, epochs=15, mini_batch_size=train_every, eta=0.05)
             train_data = [(x[:, np.newaxis], y) for x, y in zip(X_train, y_train)]
             self.neural_net.SGD(training_data=train_data, epochs=self.epochs, mini_batch_size=self.train_every, eta=self.eta)
-            print('Train costfunc: ', cost_function(self.neural_net, train_data, onehot=True))
+            # print('Train costfunc: ', cost_function(self.neural_net, train_data, onehot=True))
 
             ## ---------------------------------------- Test and train 
             # np_sensor_data_history = np.array(self.sensor_data_history)
