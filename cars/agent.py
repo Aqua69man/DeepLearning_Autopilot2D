@@ -6,6 +6,7 @@ import numpy as np
 
 from cars.utils import Action
 from learning_algorithms.network import Network, cost_function
+from learning_algorithms.regularized_network import RegularizedNetwork
 
 import matplotlib.pyplot as plt
 
@@ -39,8 +40,8 @@ class SimpleCarAgent(Agent):
         
 
         self.layers = []
-        self.layers.append(self.rays + 4) # INPUT layer: rays + (velosity + headingAngle + acceleration + steeering) 
-        if hidden_layers:                 # HIDDEN layer: chooose, how many and in which ratio you need, for example, (self.rays + 4) * 2 or just an digit
+        self.layers.append(self._rays + 4) # INPUT layer: rays + (velosity + headingAngle + acceleration + steeering) 
+        if hidden_layers:                 # HIDDEN layer: chooose, how many and in which ratio you need, for example, (self._rays + 4) * 2 or just an digit
             preproc_hidden_layers = [x for x in hidden_layers if x > 0]
             self.layers += preproc_hidden_layers 
         self.layers.append(1)             # OUTPUT layer
@@ -52,8 +53,9 @@ class SimpleCarAgent(Agent):
         self.l2 = l2
 
         # here +2 is for 2 inputs from elements of Action that we are trying to predict. 
-        self.neural_net = Network(sizes=self.layers, output_log=True,
-                                  output_function=lambda x: x, output_derivative=lambda x: 1)
+        self.neural_net = RegularizedNetwork(sizes=self.layers, output_log=False,
+                                  output_function=lambda x: x, output_derivative=lambda x: 1,
+                                  l1=self.l1, l2=self.l2)
         self.sensor_data_history = deque([], maxlen=history_data)
         self.chosen_actions_history = deque([], maxlen=history_data)
         self.reward_history = deque([], maxlen=history_data)
@@ -61,14 +63,22 @@ class SimpleCarAgent(Agent):
 
 
     @classmethod
-    def from_weights(cls, layers, weights, biases):
+    def from_weights(cls, layers, epochs, train_every, eta, l1, l2, weights, biases):
         """
         Создание агента по параметрам его нейронной сети. Разбираться не обязательно.
         """
         agent = SimpleCarAgent()
         agent._rays = weights[0].shape[1] - 4
-        nn = Network(sizes=layers, output_log=True,
-                     output_function=lambda x: x, output_derivative=lambda x: 1)
+        agent.layers = layers
+        agent.epochs = epochs 
+        agent.train_every = train_every
+        agent.eta = eta
+        agent.l1 = l1
+        agent.l2 = l2
+
+        nn = RegularizedNetwork(sizes=layers, output_log=False,
+                     output_function=lambda x: x, output_derivative=lambda x: 1,
+                     l1=agent.l1, l2=agent.l2)
 
         if len(weights) != len(nn.weights):
             raise AssertionError("You provided %d weight matrices instead of %d" % (len(weights), len(nn.weights)))
@@ -91,21 +101,21 @@ class SimpleCarAgent(Agent):
     @classmethod
     def from_string(cls, s):
         from numpy import array  # это важный импорт, без него не пройдёт нормально eval
-        layers, weights, biases = eval(s.replace("\n", ""), locals())
-        return cls.from_weights(layers, weights, biases)
+        layers, epochs, train_every, eta, l1, l2, weights, biases = eval(s.replace("\n", ""), locals())
+        return cls.from_weights(layers, epochs, train_every, eta, l1, l2, weights, biases)
 
     @classmethod
     def from_file(cls, filename):
         c = open(filename, "r").read()
         return cls.from_string(c)
 
-    def show_weights(self):
-        params = self.neural_net.sizes, self.neural_net.weights, self.neural_net.biases
+    def show_params(self):
+        params = self.neural_net.sizes, self.epochs, self.train_every, self.eta, self.l1, self.l2,  self.neural_net.weights, self.neural_net.biases
         np.set_printoptions(threshold=np.nan)
         return repr(params)
 
     def to_file(self, filename):
-        c = self.show_weights()
+        c = self.show_params()
         f = open(filename, "w")
         f.write(c)
         f.close()
@@ -177,33 +187,11 @@ class SimpleCarAgent(Agent):
             X_train = np.concatenate([self.sensor_data_history, self.chosen_actions_history], axis=1)
             y_train = self.reward_history
             
-            ## self.neural_net.SGD(training_data=train_data, epochs=15, mini_batch_size=train_every, eta=0.05)
+            # self.neural_net.SGD(training_data=train_data, epochs=15, mini_batch_size=train_every, eta=0.05)
             train_data = [(x[:, np.newaxis], y) for x, y in zip(X_train, y_train)]
             self.neural_net.SGD(training_data=train_data, epochs=self.epochs, mini_batch_size=self.train_every, eta=self.eta)
             print('Train costfunc: ', cost_function(self.neural_net, train_data, onehot=True))
-
-
-            # x_data = np.array(X_train)
-            # x_means = x_data.mean(axis=0)
-            # x_stds = x_data.std(axis=0)
-            # x_data = (x_data - x_means) / x_stds
-            # y_data = np.array(y_train)
-
-            # data = [(x[:, np.newaxis], y) for x, y in zip(x_data, y_data)]
-
-            # # train = []
-            # # test = []
-            # # for i, key in enumerate(data):
-            # #     if i < len(data)*0.75 :
-            # #         train.append(key)
-            # #     else :
-            # #         test.append(key)
-
-            # self.neural_net.SGD(training_data=data, epochs=self.epochs, mini_batch_size=self.train_every, eta=self.eta)
-            # print('Train costfunc: ', cost_function(self.neural_net, data, onehot=True))
-            # print('---------------')
-
-            # ---------------------------- Plot graph
+            ## ---------------------------------------- Plot graph
             # self.cost_train.append(cost_function(self.neural_net, train, onehot=True))
             # self.cost_test.append(cost_function(self.neural_net, test, onehot=True))
             
@@ -218,4 +206,4 @@ class SimpleCarAgent(Agent):
             # plt.legend()
             # plt.pause(0.1)
 
-            # # # self.window.graphCanvas.plot(self.cost_train, self.cost_test)
+            # # self.window.graphCanvas.plot(self.cost_train, self.cost_test)

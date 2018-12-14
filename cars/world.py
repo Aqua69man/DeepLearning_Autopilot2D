@@ -28,7 +28,7 @@ class World(metaclass=ABCMeta):
 
 class SimpleCarWorld(World):
     # -----------
-    SHOW_SLEAP_TIME = 0.02      # default = 0.1
+    SHOW_SLEAP_TIME = 0.02      # default = 0.1     .... 0.02
     # -----------
     size = (1920, 1080) #(800, 600)
 
@@ -42,13 +42,13 @@ class SimpleCarWorld(World):
     # MIN_SPEED = .1 
     # MAX_SPEED = .7
 
-    COLLISION_PENALTY = 0 * 1e0
-    HEADING_REWARD = 0 * 1e-1
-    WRONG_HEADING_PENALTY = 0 * 1e0
-    IDLENESS_PENALTY = 32 * 1e-1
-    SPEEDING_PENALTY = 32 * 1e-1
-    MIN_SPEED = 0.1 * 1e0
-    MAX_SPEED = 0.7 * 1e0
+    COLLISION_PENALTY = 32 
+    HEADING_REWARD = 0 
+    WRONG_HEADING_PENALTY = 0 
+    IDLENESS_PENALTY = 3.2
+    SPEEDING_PENALTY = 3.2
+    MIN_SPEED = 0.1 
+    MAX_SPEED = 10
 
     def __init__(self, num_agents, car_map, Physics, agent_class, window=None, **physics_pars):
         """
