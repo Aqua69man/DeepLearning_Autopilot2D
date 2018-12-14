@@ -32,14 +32,14 @@ class SimpleCarAgent(Agent):
         Создаёт машинку
         :param history_data: количество хранимых нами данных о результатах предыдущих шагов
         """
-        # self.train_sensor_data_history = []
-        # self.train_chosen_actions_history = []
-        # self.train_reward_history = []
-        # # --
-        # self.test_sensor_data_history = []
-        # self.test_chosen_actions_history = []
-        # self.test_reward_history = []
-        # # --
+        self.train_sensor_data_history = []
+        self.train_chosen_actions_history = []
+        self.train_reward_history = []
+        # --
+        self.test_sensor_data_history = []
+        self.test_chosen_actions_history = []
+        self.test_reward_history = []
+        # --
         self.cost_train = []
         self.cost_test = []
 
