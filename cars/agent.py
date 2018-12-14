@@ -32,6 +32,14 @@ class SimpleCarAgent(Agent):
         Создаёт машинку
         :param history_data: количество хранимых нами данных о результатах предыдущих шагов
         """
+        # self.train_sensor_data_history = []
+        # self.train_chosen_actions_history = []
+        # self.train_reward_history = []
+        # # --
+        # self.test_sensor_data_history = []
+        # self.test_chosen_actions_history = []
+        # self.test_reward_history = []
+        # # --
         self.cost_train = []
         self.cost_test = []
 
@@ -191,6 +199,52 @@ class SimpleCarAgent(Agent):
             train_data = [(x[:, np.newaxis], y) for x, y in zip(X_train, y_train)]
             self.neural_net.SGD(training_data=train_data, epochs=self.epochs, mini_batch_size=self.train_every, eta=self.eta)
             print('Train costfunc: ', cost_function(self.neural_net, train_data, onehot=True))
+
+            ## ---------------------------------------- Test and train 
+            # np_sensor_data_history = np.array(self.sensor_data_history)
+            # np_chosen_actions_history = np.array(self.chosen_actions_history)
+            # np_reward_history = np.array(self.reward_history)
+
+            # lastBatch_sensor_data_history       = np_sensor_data_history[-self.train_every:]
+            # lastBatch_chosen_actions_history    = np_chosen_actions_history[-self.train_every:]
+            # lastBatch_reward_history            = np_reward_history[-self.train_every:]
+            
+
+            # test_index = np.random.choice([True, False], self.train_every, replace=True, p=[0.25, 0.75])
+            # # --
+            # test_sensor_data_history = lastBatch_sensor_data_history[test_index]
+            # test_chosen_actions_history = lastBatch_chosen_actions_history[test_index]
+            # test_reward_history = lastBatch_reward_history[test_index]
+            # # --
+            # train_sensor_data_history = lastBatch_sensor_data_history[np.logical_not(test_index)]
+            # train_chosen_actions_history = lastBatch_chosen_actions_history[np.logical_not(test_index)]
+            # train_reward_history = lastBatch_reward_history[np.logical_not(test_index)]
+            
+
+
+            # [self.test_sensor_data_history.append(x)    for x in test_sensor_data_history]
+            # [self.test_chosen_actions_history.append(x) for x in test_chosen_actions_history]
+            # [self.test_reward_history.append(x)         for x in test_reward_history]
+
+            # [self.train_sensor_data_history.append(x)       for x in train_sensor_data_history]
+            # [self.train_chosen_actions_history.append(x)    for x in train_chosen_actions_history]
+            # [self.train_reward_history.append(x)            for x in train_reward_history]
+
+
+            # x_test = np.concatenate([self.test_sensor_data_history, self.test_chosen_actions_history], axis=1)
+            # y_test = self.test_reward_history
+            # # --
+            # x_train = np.concatenate([self.train_sensor_data_history, self.train_chosen_actions_history], axis=1)
+            # y_train = self.train_reward_history
+
+
+            # train = [(x[:, np.newaxis], y) for x, y in zip(x_test, y_test)]
+            # test = [(x[:, np.newaxis], y) for x, y in zip(x_train, y_train)]
+
+
+            # self.neural_net.SGD(training_data=train, epochs=self.epochs, mini_batch_size=self.train_every, eta=self.eta)
+            # # print('Train costfunc: ', cost_function(self.neural_net, train, onehot=True))
+
             ## ---------------------------------------- Plot graph
             # self.cost_train.append(cost_function(self.neural_net, train, onehot=True))
             # self.cost_test.append(cost_function(self.neural_net, test, onehot=True))
