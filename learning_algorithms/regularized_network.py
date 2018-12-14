@@ -1,4 +1,4 @@
-from network import *
+from learning_algorithms.network import *
 
 class RegularizedNetwork(Network):
     def __init__(self, sizes, output_log=True, output_function=sigmoid, output_derivative=sigmoid_prime, l1=0, l2=0):

@@ -28,8 +28,9 @@ import matplotlib.pyplot as plt
 # c = np.concatenate([a,b], axis=0)
 # print(c)
 
-x = [1]
-y = [5]
-
-c =  x + y
+x = np.array([])
+y = np.array([1,2])
+# x = [[1,2,3], [5,6,7]]
+# y = [[4], [8]]
+c = np.concatenate([x,y], axis=0)
 print(c)
