@@ -167,7 +167,7 @@ class SimpleCarAgent(Agent):
 
         return best_action
 
-    def receive_feedback(self, reward, reward_depth=7):
+    def receive_feedback(self, reward, reward_depth=20):
         """
         Получить реакцию на последнее решение, принятое сетью, и проанализировать его
         :param reward: оценка внешним миром наших действий
