@@ -37,7 +37,7 @@ class Window(QWidget):
         self.s_layer1 = QSlider(Qt.Horizontal)
         self.s_layer1.setMinimum(0)
         self.s_layer1.setMaximum(27)
-        self.s_layer1.setValue(18)
+        self.s_layer1.setValue(27)
         self.s_layer1.setTickInterval(1) # discretization frequency
         self.s_layer1.setTickPosition(QSlider.TicksRight) # QSlider.TicksBelow - determins the side where the stick points
 
@@ -45,7 +45,7 @@ class Window(QWidget):
         self.s_layer2 = QSlider(Qt.Horizontal)
         self.s_layer2.setMinimum(0)
         self.s_layer2.setMaximum(27)
-        self.s_layer2.setValue(0)
+        self.s_layer2.setValue(18)
         self.s_layer2.setTickInterval(1)
         self.s_layer2.setTickPosition(QSlider.TicksRight)
 
@@ -53,7 +53,7 @@ class Window(QWidget):
         self.s_layer3 = QSlider(Qt.Horizontal)
         self.s_layer3.setMinimum(0)
         self.s_layer3.setMaximum(27)
-        self.s_layer3.setValue(0)
+        self.s_layer3.setValue(9)
         self.s_layer3.setTickInterval(1)
         self.s_layer3.setTickPosition(QSlider.TicksRight)
 
@@ -63,7 +63,7 @@ class Window(QWidget):
 
         self.l_batchSize = QLabel('Batch size:')
         self.le_batchSize = QLineEdit()
-        self.le_batchSize.setText('20')
+        self.le_batchSize.setText('50')
 
         self.l_learnRate = QLabel('Learning rate:')
         self.cb_learnRate = QComboBox()
@@ -142,6 +142,35 @@ class Window(QWidget):
         self.setWindowTitle(self.title)
         self.show()
 
+    def evaluate(self, seed, steps, agent_file_name):
+        # -- test
+        np.random.seed(seed)
+        random.seed(seed)
+        m = generate_map(8, 5, 3, 3)
+        # --
+        self.agent = SimpleCarAgent.from_file(agent_file_name)
+        self.scw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
+        evl = self.scw.evaluate_agent(self.agent, steps)
+        return evl
+    def test_finish_condition(self, steps, agent_file_name):
+        # -- test 1
+        seed = 3
+        evl_1 = self.evaluate(seed, steps, agent_file_name)
+        print("evl_1 = ", evl_1)
+        # -- test 2
+        seed = 13
+        evl_2 = self.evaluate(seed, steps, agent_file_name)
+        print("evl_2 = ", evl_2)
+        # -- test 3
+        seed = 23
+        evl_3 = self.evaluate(seed, steps, agent_file_name)
+        print("evl_3 = ", evl_3)
+        print('-------------------<<')
+        # # -- Check finish conditions
+        # if (evl_1 >= -0.21662 and evl_2 >= -0.16803 and evl_3 >= -0.18133):
+        #     print("Conditions were satisfied!")
+        #     self.close() 
+
 
     def b_train_MULTIPLE_changed(self):
         # parse gui prams
@@ -164,7 +193,9 @@ class Window(QWidget):
             os.remove(file)
 
         # global steps count
-        steps = 2
+        itterations = 5
+        train_steps = 2000
+        test_steps = 300
 
         # init NN and PyGame
         seed = 3
@@ -173,33 +204,33 @@ class Window(QWidget):
         m = generate_map(8, 5, 3, 3)
 
         # train nn
-        agent = SimpleCarAgent(hidden_layers=hidden_layers, epochs=epoches, mini_batch_size=batch_size, eta=learning_rate, l1=reg_L1, l2=reg_L2)
-        scw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
-        scw.set_agents([agent])
-        scw.run(1)
+        self.agent = SimpleCarAgent(hidden_layers=hidden_layers, epochs=epoches, mini_batch_size=batch_size, eta=learning_rate, l1=reg_L1, l2=reg_L2)
+        self.scw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
+        self.scw.set_agents([self.agent])
+        self.scw.run(1)
 
-        for _ in range(steps):
+        for _ in range(itterations):
             # ======================================================================== 1
             # init NN and PyGame    
             seed = 3
             np.random.seed(seed)
             random.seed(seed)
             m = generate_map(8, 5, 3, 3)
-
             # get inferance file name
             agent_fils_names = []
             for file in glob.glob("*.txt"):
                 agent_fils_names.append(file)
-
             agent_file_name = agent_fils_names[0]
-            # run game
-            agent = SimpleCarAgent.from_file(agent_file_name)
-            # os.remove(agent_file_name)
-            sw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
-            sw.set_agents([agent])
-            sw.run(1000)
+            # train
+            self.agent = SimpleCarAgent.from_file(agent_file_name)
+            self.scw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
+            self.scw.set_agents([self.agent])
+            self.scw.run(train_steps)
 
-            # # ======================================================================== 2
+            # test
+            self.test_finish_condition(test_steps, agent_file_name)
+
+            # # # ======================================================================== 2
             # # init NN and PyGame
             # seed = 13
             # np.random.seed(seed)
@@ -210,16 +241,18 @@ class Window(QWidget):
             # agent_fils_names = []
             # for file in glob.glob("*.txt"):
             #     agent_fils_names.append(file)
-
             # agent_file_name = agent_fils_names[0]
-            # # run game
-            # agent = SimpleCarAgent.from_file(agent_file_name)
-            # # os.remove(agent_file_name)
-            # sw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
-            # sw.set_agents([agent])
-            # sw.run(800)
 
-            # # ======================================================================== 3
+            # # train
+            # self.agent = SimpleCarAgent.from_file(agent_file_name)
+            # self.scw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
+            # self.scw.set_agents([self.agent])
+            # self.scw.run(train_steps)
+
+            # # test
+            # self.test_finish_condition(test_steps, agent_file_name)
+
+            # # # ======================================================================== 3
             # # init NN and PyGame
             # seed = 23
             # np.random.seed(seed)
@@ -230,15 +263,18 @@ class Window(QWidget):
             # agent_fils_names = []
             # for file in glob.glob("*.txt"):
             #     agent_fils_names.append(file)
-
             # agent_file_name = agent_fils_names[0]
-            # # run game
-            # agent = SimpleCarAgent.from_file(agent_file_name)
-            # # os.remove(agent_file_name)
-            # sw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
-            # sw.set_agents([agent])
-            # sw.run(800)
 
+            # # train
+            # self.agent = SimpleCarAgent.from_file(agent_file_name)
+            # self.scw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
+            # self.scw.set_agents([self.agent])
+            # self.scw.run(train_steps)
+
+            # # test
+            # self.test_finish_condition(test_steps, agent_file_name)
+
+            # # ======================================================================== 4
 
 
     def b_train_changed(self):
@@ -318,6 +354,7 @@ class Window(QWidget):
         print(evl)
  
 
+
     def s_layer1_changed(self, text):
         new_text = '1st hidden layer: ' + str(text)  
         self.l_layer1.setText(new_text)
@@ -337,6 +374,14 @@ class Window(QWidget):
         self.l0_qimage = QtGui.QImage(data, w, h, QtGui.QImage.Format_RGB32)
         self.l_pygameBackbuff.setPixmap(QtGui.QPixmap.fromImage(self.l0_qimage) )
     def closeEvent(self, event): 
+        for i, agent in enumerate(self.scw.agents):
+            try:
+                filename = "network_config_agent_%d_layers_%s.txt" % (i, "_".join(map(str, agent.neural_net.sizes)))
+                agent.to_file(filename)
+                print("Saved agent parameters to '%s'" % filename)
+            except AttributeError:
+                pass
+
         super().closeEvent(event)
         pygame.quit() 
 
