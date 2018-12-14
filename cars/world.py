@@ -32,23 +32,21 @@ class SimpleCarWorld(World):
     # -----------
     size = (1920, 1080) #(800, 600)
 
-    # COLLISION_PENALTY = .3
-    # WRONG_HEADING_PENALTY = .6
-    # HEADING_REWARD = 1.5
-
-    # IDLENESS_PENALTY = .2
-    # SPEEDING_PENALTY = .8
-
-    # MIN_SPEED = .1 
-    # MAX_SPEED = .7
-
-    COLLISION_PENALTY = 32 
-    HEADING_REWARD = 0 
-    WRONG_HEADING_PENALTY = 0 
+    COLLISION_PENALTY = 32
+    HEADING_REWARD = 0
+    WRONG_HEADING_PENALTY = 0
     IDLENESS_PENALTY = 3.2
     SPEEDING_PENALTY = 3.2
     MIN_SPEED = 0.1 
     MAX_SPEED = 10
+
+    # COLLISION_PENALTY = 100
+    # HEADING_REWARD = 0.0
+    # WRONG_HEADING_PENALTY = 400
+    # IDLENESS_PENALTY = 2
+    # SPEEDING_PENALTY = 4
+    # MIN_SPEED = 0.1 
+    # MAX_SPEED = 10
 
     def __init__(self, num_agents, car_map, Physics, agent_class, window=None, **physics_pars):
         """
@@ -140,7 +138,7 @@ class SimpleCarWorld(World):
         # ----
         summ = hr + hp + cp + ip + ps
         # ----------------------------------------------------------------------------------------
-
+        
         return heading_reward * self.HEADING_REWARD + heading_penalty * self.WRONG_HEADING_PENALTY + collision_penalty \
                + idle_penalty + speeding_penalty
 
@@ -161,14 +159,69 @@ class SimpleCarWorld(World):
             + idle_penalty + speeding_penalty
 
 
+    # def run(self, steps=None):
+    #     """
+    #     Основной цикл мира; по завершении сохраняет текущие веса агента в файл network_config_agent_n_layers_....txt
+    #     :param steps: количество шагов цикла; до внешней остановки, если None
+    #     """
+    #     scale = self._prepare_visualization()
+    #     for _ in range(steps) if steps is not None else itertools.count():
+    #         self.transition()
+    #         self.visualize(scale)
+    #         if self._update_display() == pygame.QUIT:
+    #             break            
+    #         sleep(self.SHOW_SLEAP_TIME) # default = 0.1
+
+    #         # send "backbuffer" surface to PyQt for UI Visualization
+    #         if self.window: 
+    #             self.window.set_pygame_image(self.screen)
+
+    #     for i, agent in enumerate(self.agents):
+    #         try:
+    #             filename = "network_config_agent_%d_layers_%s.txt" % (i, "_".join(map(str, agent.neural_net.sizes)))
+    #             agent.to_file(filename)
+    #             print("Saved agent parameters to '%s'" % filename)
+    #         except AttributeError:
+    #             pass
+
     def run(self, steps=None):
         """
         Основной цикл мира; по завершении сохраняет текущие веса агента в файл network_config_agent_n_layers_....txt
         :param steps: количество шагов цикла; до внешней остановки, если None
         """
         scale = self._prepare_visualization()
-        for _ in range(steps) if steps is not None else itertools.count():
-            self.transition()
+
+        rewards = []
+        means = []
+
+        for step in range(steps) if steps is not None else itertools.count():
+            
+            for a in self.agents:
+                vision = self.vision_for(a)         # velosity, sin(angle), rayS_fromAgentToIntersectionPoint_moduleS 
+                action = a.choose_action(vision)
+                next_agent_state, collision = self.physics.move(
+                    self.agent_states[a], action
+                )
+                self.circles[a] += angle(self.agent_states[a].position, next_agent_state.position) / (2*pi)
+                self.agent_states[a] = next_agent_state
+                rewards.append(self.reward(next_agent_state, collision))
+                a.receive_feedback(rewards[-1])
+
+            if step % 25 == 0:
+                means.append( np.mean(rewards[-25:]) )
+
+                import matplotlib.pyplot as plt
+                plt.close()
+                fig = plt.figure(figsize=(15,5))
+                fig.add_subplot(1,1,1)
+                plt.plot(means, label="Training error", color="orange")
+                plt.title("Learning curve")
+                plt.ylabel("Cost function")
+                plt.xlabel("Epoch number")
+                plt.legend()
+                plt.pause(0.1)
+        
+
             self.visualize(scale)
             if self._update_display() == pygame.QUIT:
                 break            
@@ -185,7 +238,6 @@ class SimpleCarWorld(World):
                 print("Saved agent parameters to '%s'" % filename)
             except AttributeError:
                 pass
-
 
     def evaluate_agent(self, agent, steps=1000, visual=True):
         """
