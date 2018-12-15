@@ -194,7 +194,7 @@ class Window(QWidget):
 
         # global steps count
         itterations = 5
-        train_steps = 2000
+        train_steps = 1000
         test_steps = 300
 
         # init NN and PyGame
@@ -230,51 +230,52 @@ class Window(QWidget):
             # test
             self.test_finish_condition(test_steps, agent_file_name)
 
-            # # # ======================================================================== 2
-            # # init NN and PyGame
-            # seed = 13
-            # np.random.seed(seed)
-            # random.seed(seed)
-            # m = generate_map(8, 5, 3, 3)
+            # ======================================================================== 2
+            # init NN and PyGame
+            seed = 13
+            np.random.seed(seed)
+            random.seed(seed)
+            m = generate_map(8, 5, 3, 3)
 
-            # # get inferance file name
-            # agent_fils_names = []
-            # for file in glob.glob("*.txt"):
-            #     agent_fils_names.append(file)
-            # agent_file_name = agent_fils_names[0]
+            # get inferance file name
+            agent_fils_names = []
+            for file in glob.glob("*.txt"):
+                agent_fils_names.append(file)
+            agent_file_name = agent_fils_names[0]
 
-            # # train
-            # self.agent = SimpleCarAgent.from_file(agent_file_name)
-            # self.scw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
-            # self.scw.set_agents([self.agent])
-            # self.scw.run(train_steps)
+            # train
+            self.agent = SimpleCarAgent.from_file(agent_file_name)
+            self.scw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
+            self.scw.set_agents([self.agent])
+            self.scw.run(train_steps)
 
-            # # test
-            # self.test_finish_condition(test_steps, agent_file_name)
+            # test
+            self.test_finish_condition(test_steps, agent_file_name)
 
-            # # # ======================================================================== 3
-            # # init NN and PyGame
-            # seed = 23
-            # np.random.seed(seed)
-            # random.seed(seed)
-            # m = generate_map(8, 5, 3, 3)
+            # ======================================================================== 3
+            # init NN and PyGame
+            seed = 23
+            np.random.seed(seed)
+            random.seed(seed)
+            m = generate_map(8, 5, 3, 3)
 
-            # # get inferance file name
-            # agent_fils_names = []
-            # for file in glob.glob("*.txt"):
-            #     agent_fils_names.append(file)
-            # agent_file_name = agent_fils_names[0]
+            # get inferance file name
+            agent_fils_names = []
+            for file in glob.glob("*.txt"):
+                agent_fils_names.append(file)
+            agent_file_name = agent_fils_names[0]
 
-            # # train
-            # self.agent = SimpleCarAgent.from_file(agent_file_name)
-            # self.scw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
-            # self.scw.set_agents([self.agent])
-            # self.scw.run(train_steps)
+            # train
+            self.agent = SimpleCarAgent.from_file(agent_file_name)
+            self.scw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
+            self.scw.set_agents([self.agent])
+            self.scw.run(train_steps)
 
-            # # test
-            # self.test_finish_condition(test_steps, agent_file_name)
+            # test
+            self.test_finish_condition(test_steps, agent_file_name)
 
             # # ======================================================================== 4
+            train_steps = 300
 
 
     def b_train_changed(self):
@@ -341,7 +342,7 @@ class Window(QWidget):
             agent_fils_names.append(file)
         
         # init NN and PyGame
-        steps = 1000
+        steps = 1200
         seed = 3
         np.random.seed(seed)
         random.seed(seed)
