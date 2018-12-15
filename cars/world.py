@@ -32,13 +32,21 @@ class SimpleCarWorld(World):
     # -----------
     size = (1920, 1080) #(800, 600)
 
-    COLLISION_PENALTY = 32
-    HEADING_REWARD = 0
-    WRONG_HEADING_PENALTY = 0
-    IDLENESS_PENALTY = 3.2
-    SPEEDING_PENALTY = 3.2
+    COLLISION_PENALTY = 3
+    HEADING_REWARD = 3
+    WRONG_HEADING_PENALTY = 3
+    IDLENESS_PENALTY = 3
+    SPEEDING_PENALTY = 3
     MIN_SPEED = 0.1 
     MAX_SPEED = 10
+
+    # COLLISION_PENALTY = 3.2
+    # HEADING_REWARD = 0
+    # WRONG_HEADING_PENALTY = 3.2
+    # IDLENESS_PENALTY = 3.2
+    # SPEEDING_PENALTY = 3.2
+    # MIN_SPEED = 0.1 
+    # MAX_SPEED = 10
 
     # COLLISION_PENALTY = 100
     # HEADING_REWARD = 0.0
@@ -207,19 +215,19 @@ class SimpleCarWorld(World):
                 rewards.append(self.reward(next_agent_state, collision))
                 a.receive_feedback(rewards[-1])
 
-            if step % 25 == 0:
-                means.append( np.mean(rewards[-25:]) )
+            # if step % 25 == 0:
+            #     means.append( np.mean(rewards[-25:]) )
 
-                import matplotlib.pyplot as plt
-                plt.close()
-                fig = plt.figure(figsize=(15,5))
-                fig.add_subplot(1,1,1)
-                plt.plot(means, label="Training error", color="orange")
-                plt.title("Learning curve")
-                plt.ylabel("Cost function")
-                plt.xlabel("Epoch number")
-                plt.legend()
-                plt.pause(0.1)
+            #     import matplotlib.pyplot as plt
+            #     plt.close()
+            #     fig = plt.figure(figsize=(15,5))
+            #     fig.add_subplot(1,1,1)
+            #     plt.plot(means, label="Training error", color="orange")
+            #     plt.title("Learning curve")
+            #     plt.ylabel("Cost function")
+            #     plt.xlabel("Epoch number")
+            #     plt.legend()
+            #     plt.pause(0.1)
         
 
             self.visualize(scale)
