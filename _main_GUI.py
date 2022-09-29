@@ -30,6 +30,7 @@ class Window(QWidget):
         self.title = 'Car Training - Newral Network'
         self.left = 100;  self.top = 100;  self.width = 1920;  self.height = 1080
         self.init_ui()
+
     def init_ui(self): 
         self.l_pygameBackbuff = QLabel()
 
@@ -38,8 +39,8 @@ class Window(QWidget):
         self.s_layer1.setMinimum(0)
         self.s_layer1.setMaximum(27)
         self.s_layer1.setValue(27)
-        self.s_layer1.setTickInterval(1) # discretization frequency
-        self.s_layer1.setTickPosition(QSlider.TicksRight) # QSlider.TicksBelow - determins the side where the stick points
+        self.s_layer1.setTickInterval(1)                    # Discretization frequency
+        self.s_layer1.setTickPosition(QSlider.TicksRight)   # QSlider.TicksBelow - determins the side where the stick points
 
         self.l_layer2 = QLabel('2nd hidden layer:')
         self.s_layer2 = QSlider(Qt.Horizontal)
@@ -152,6 +153,7 @@ class Window(QWidget):
         self.scw = SimpleCarWorld(1, m, SimplePhysics, SimpleCarAgent, timedelta=0.2, window=self)
         evl = self.scw.evaluate_agent(self.agent, steps)
         return evl
+
     def test_finish_condition(self, steps, agent_file_name):
         # -- test 1
         seed = 3
@@ -210,7 +212,7 @@ class Window(QWidget):
         self.scw.run(1)
 
         for _ in range(itterations):
-            # ======================================================================== 1
+            # ---------------------------------- 1
             # init NN and PyGame    
             seed = 3
             np.random.seed(seed)
@@ -230,7 +232,7 @@ class Window(QWidget):
             # test
             self.test_finish_condition(test_steps, agent_file_name)
 
-            # ======================================================================== 2
+            # ---------------------------------- 2
             # init NN and PyGame
             seed = 13
             np.random.seed(seed)
@@ -252,7 +254,7 @@ class Window(QWidget):
             # test
             self.test_finish_condition(test_steps, agent_file_name)
 
-            # ======================================================================== 3
+            # ---------------------------------- 3
             # init NN and PyGame
             seed = 23
             np.random.seed(seed)
@@ -274,7 +276,7 @@ class Window(QWidget):
             # test
             self.test_finish_condition(test_steps, agent_file_name)
 
-            # # ======================================================================== 4
+            # # ---------------------------------- 4
             train_steps = 300
 
 

@@ -34,9 +34,9 @@ def cost_function(network, test_data, onehot=True, showLog=False, weights=None, 
             y = np.eye(3, 1, k=-int(y))
         yhat = network.feedforward(example)
         c += np.sum((y - yhat)**2)
-    c = c / (2 * len(test_data)) # не забудем поделить на 2, т.к. у нас выйдет двойка после дифференцирования
+    c = c / (2 * len(test_data))  # не забудем поделить на 2, т.к. у нас выйдет двойка после дифференцирования
     
-    # -------- Farid ----------
+    # -------- UPD_LOG ----------
     # ARGs: weights=None, l1=None, l2=None, were also added by Farid to test    
     if weights is not None:
         if showLog is True:
@@ -67,7 +67,7 @@ def cost_function(network, test_data, onehot=True, showLog=False, weights=None, 
         
         if showLog is True:
             print("_J: ", c)
-    # -------- ~ Farid ----------
+    # -------- ~ UPD_LOG ----------
     
     return c
     

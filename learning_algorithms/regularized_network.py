@@ -5,14 +5,14 @@ class RegularizedNetwork(Network):
         super().__init__(sizes, output_log, output_function, output_derivative)
         self.l1 = l1
         self.l2 = l2
-        # ======================================================
+        # -------------------------------
         self.firstTime = True # delete me
         self.old_weights = []
         self.new_weights = []
         self.j1_weights = []
         self.l1_weights = []
         self.l2_weights = []
-        # ======================================================
+        # -------------------------------
         
         
     def update_mini_batch(self, mini_batch, eta):
